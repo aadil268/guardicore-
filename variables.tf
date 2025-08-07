@@ -29,13 +29,13 @@ variable "enable_guardicore_agent_installation" {
   default     = true
 }
 
-variable "guardicore_idp_hostname" {
-  description = "The Identity Provider (IdP) hostname for Guardicore Agent authentication."
+variable "guardicore_aggregators_fqdn" {
+  description = "The FQDN of the Guardicore Aggregators."
   type        = string
 }
 
-variable "guardicore_token" {
-  description = "The ETP activation or entitlement code for Guardicore Agent."
+variable "guardicore_secure_password" {
+  description = "The secure password for Guardicore Agent Installation."
   type        = string
   sensitive   = true
 }
