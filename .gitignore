@@ -34,3 +34,5 @@ Thumbs.db
 *.bak
 *.tmp
 .terraform.tfstate.lock.info
+Untitled1.ps1
+guardicore_windows_installer.exe

@@ -1,7 +1,7 @@
 Param(
-    [string]$IdpHostname,
-    [string]$Token,
-    [string]$ExeUrl
+    [string]$AggregatorsFQDN,
+    [string]$SecurePassword,
+    [string]$AgentExeUrl
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,13 +12,13 @@ $exeFileName = "GuardicorePlatformAgent.exe"
 $downloadPath = "$env:TEMP\$exeFileName"
 
 # Download the EXE installer if a URL is provided
-if (-not [string]::IsNullOrWhiteSpace($ExeUrl)) {
-    Write-Host "Downloading Guardicore Agent installer from $ExeUrl..."
+if (-not [string]::IsNullOrWhiteSpace($AgentExeUrl)) {
+    Write-Host "Downloading Guardicore Agent installer from $AgentExeUrl..."
     try {
-        Invoke-WebRequest -Uri $ExeUrl -OutFile $downloadPath -UseBasicParsing
+        Invoke-WebRequest -Uri $AgentExeUrl -OutFile $downloadPath -UseBasicParsing
         Write-Host "Download complete: $downloadPath"
     } catch {
-        Write-Error "Failed to download installer from $ExeUrl. Error: $_"
+        Write-Error "Failed to download installer from $AgentExeUrl. Error: $_"
         exit 1
     }
 } else {
@@ -30,7 +30,7 @@ if (-not [string]::IsNullOrWhiteSpace($ExeUrl)) {
 }
 
 # Construct correct argument list as per engineering team's guide
-$arguments = "/offline /a $IdpHostname /p `"$Token`" /installation-profile windows_adminlock /q /override-uuid-file-reload"
+$arguments = "/offline /a $AggregatorsFQDN /p `"$SecurePassword`" /installation-profile windows_adminlock /q /override-uuid-file-reload"
 
 Write-Host "Executing Guardicore Agent installer with arguments:`n$arguments"
 try {
@@ -41,6 +41,15 @@ try {
         exit $process.ExitCode
     }
 
+    Write-Host "Installation completed. Verifying service status..."
+    Start-Sleep -Seconds 30
+
+    $service = Get-Service -Name "GC-AGENTS-SERVICE" -ErrorAction SilentlyContinue
+    if ($service) {
+        Write-Host "Guardicore Agent service is running. Installation successful."
+    } else {
+        Write-Warning "Guardicore Agent service not found. Please check installation logs."
+    }
 } catch {
     Write-Error "Installation failed: $_"
     exit 1
@@ -51,4 +60,4 @@ try {
     }
 }
 
-Write-Host "`n✅ Guardicore Agent installation script completed." 
+Write-Host "`nGuardicore Agent installation script completed."
