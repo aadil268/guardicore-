@@ -116,7 +116,7 @@ resource "azurerm_virtual_machine_extension" "guardicore_agent_install" {
 
   settings = jsonencode({
     fileUris         = [var.guardicore_script_url]
-    commandToExecute = "powershell -ExecutionPolicy Unrestricted -File install_guardicore_agent.ps1 -AggregatorsFQDN '${var.guardicore_aggregators_fqdn,}' -SecurePassword '${var.guardicore_secure_password}' -AgentExeUrl '${var.guardicore_exe_url}'"
+    commandToExecute = "powershell -ExecutionPolicy Unrestricted -File install_guardicore_agent.ps1 -AggregatorsFQDN '${var.guardicore_aggregators_fqdn}' -SecurePassword '${var.guardicore_secure_password}' -AgentExeUrl '${var.guardicore_exe_url}'"
   })
 
   protected_settings = jsonencode({
