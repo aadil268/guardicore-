@@ -126,6 +126,6 @@ resource "azurerm_virtual_machine_extension" "guardicore_agent_install" {
   })
 
   depends_on = [
-    azurerm_windows_virtual_machine.vm[count.index].id
+    azurerm_windows_virtual_machine.vm
   ]
 }
