@@ -1,68 +1,68 @@
 Param(
-    [string]$IdpHostname,
-    [string]$Token,
+    [Parameter(Mandatory = $true)][string]$IdpHostname,
+    [Parameter(Mandatory = $true)][string]$Token,
     [string]$ExeUrl
 )
 
 $ErrorActionPreference = "Stop"
+Write-Host "`nStarting Guardicore Agent installation..."
 
-Write-Host "Starting Guardicore Agent installation..."
-
-$EXEFileName = "GuardicorePlatformAgent.EXE"
-$downloadPath = "$env:TEMP\$EXEFileName"
+# Define EXE installer path
+$exeFileName = "GuardicorePlatformAgent.exe"
+$downloadPath = "$env:TEMP\$exeFileName"
 
 # Download the EXE installer if a URL is provided
-if (-not [string]::IsNullOrEmpty($ExeUrl)) {
+if (-not [string]::IsNullOrWhiteSpace($ExeUrl)) {
     Write-Host "Downloading Guardicore Agent EXE from $ExeUrl..."
-# Download the MSI installer if a URL is provided
-if ($MsiUrl -match '\S') {
-    Write-Host "Downloading Guardicore Agent MSI from $MsiUrl..."
     try {
         Invoke-WebRequest -Uri $ExeUrl -OutFile $downloadPath -UseBasicParsing
-        Write-Host "Download complete."
+        Write-Host "Download complete: $downloadPath"
     } catch {
-        Write-Error "Failed to download EXE from $ExeUrl $_"
+        Write-Error "Failed to download EXE from $ExeUrl. Error: $_"
         exit 1
     }
 } else {
-    Write-Host "No EXE URL provided. Assuming EXE is pre-staged or available locally at $downloadPath."
-    # For this script, we'll make it an error if the file doesn't exist and no URL is given.
+    Write-Host "No EXE URL provided. Assuming EXE is pre-staged at $downloadPath."
     if (-not (Test-Path $downloadPath)) {
-        Write-Error "EXE file not found at $downloadPath and no download URL provided. Exiting."
+        Write-Error "EXE file not found at $downloadPath and no URL provided. Exiting."
         exit 1
     }
 }
-}
 
-# Construct the installation command
-$installCommand = "msiexec /i `"$downloadPath`" /quiet"
-
-if ($IdpHostname -match '\S') {
-    $installCommand += " IDP=`"$IdpHostname`""
-}
-
-if ($Token -match '\S') {
-    $installCommand += " TOKEN=`"$Token`""
-}
-
-Write-Host "Executing installation command: $installCommand"
+# Construct argument list
+$arguments = "/quiet IDP=$IdpHostname TOKEN=$Token"
+Write-Host "Executing Guardicore Agent installer..."
 
 try {
-    Invoke-Expression $installCommand
-    Write-Host "Guardicore Agent installation initiated. Checking for success..."
+    $process = Start-Process -FilePath $downloadPath -ArgumentList $arguments -Wait -PassThru
 
-    # You might want to add more robust checks here, e.g., checking service status or logs
-    Start-Sleep -Seconds 30 # Give some time for the installation to proceed
-
-    if (Get-Service -Name "GuardicoreAgent" -ErrorAction SilentlyContinue) {
-        Write-Host "Guardicore Agent service found. Installation likely successful."
-    } else {
-        Write-Warning "Guardicore Agent service not found after installation. Please check logs for errors."
+    if ($process.ExitCode -ne 0) {
+        Write-Error "Installer exited with code $($process.ExitCode). Installation may have failed."
+        exit $process.ExitCode
     }
 
+    Write-Host "Installation completed. Verifying service status..."
+    Start-Sleep -Seconds 30
+
+    $service = Get-Service -Name "GuardicoreAgent" -ErrorAction SilentlyContinue
+    if ($service) {
+        Write-Host "Guardicore Agent service found. Installation successful."
+    } else {
+        Write-Warning "Guardicore Agent service not found. Please verify installation logs manually."
+    }
 } catch {
-    Write-Error "Guardicore Agent installation failed: $_"
+    Write-Error "Installation failed: $_"
     exit 1
 }
 
-Write-Host "Guardicore Agent installation script finished."
+# Cleanup installer
+try {
+    if (Test-Path $downloadPath) {
+        Remove-Item $downloadPath -Force
+        Write-Host "Temporary installer deleted: $downloadPath"
+    }
+} catch {
+    Write-Warning "Failed to delete temporary EXE: $_"
+}
+
+Write-Host "`nGuardicore Agent installation script completed."

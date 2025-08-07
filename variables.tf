@@ -13,7 +13,7 @@ variable "subscription_id" {
 variable "instance_name" {
   description = "Base name for the VM instances"
   type        = string
-  default     = "vmguardicore"
+  default     = "vmgcore"
 }
 
 variable "vm_count" {
