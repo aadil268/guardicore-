@@ -8,17 +8,14 @@ $ErrorActionPreference = "Stop"
 Write-Host "`nStarting Guardicore Agent installation..."
 
 # Define EXE installer path
-
-$exeFileName = "GuardicorePlatformAgent.txt"
+$exeFileName = "GuardicorePlatformAgent.exe"
 $downloadPath = "$env:TEMP\$exeFileName"
-$exePath = "$env:TEMP\GuardicorePlatformAgent.exe"
 
 # Download the EXE installer if a URL is provided
 if (-not [string]::IsNullOrWhiteSpace($AgentExeUrl)) {
     Write-Host "Downloading Guardicore Agent installer from $AgentExeUrl..."
     try {
-        Invoke-WebRequest -Uri $AgentExeUrl -OutFile $downloadPath
-        Rename-Item -Path $downloadPath -NewName $exePath
+        Invoke-WebRequest -Uri $AgentExeUrl -OutFile $downloadPath -UseBasicParsing
         Write-Host "Download complete: $downloadPath"
     } catch {
         Write-Error "Failed to download installer from $AgentExeUrl. Error: $_"
