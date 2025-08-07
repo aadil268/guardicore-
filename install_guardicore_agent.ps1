@@ -1,4 +1,3 @@
-
 Param(
     [string]$IdpHostname,
     [string]$Token,
@@ -12,15 +11,12 @@ Write-Host "Starting Guardicore Agent installation..."
 $EXEFileName = "GuardicorePlatformAgent.EXE"
 $downloadPath = "$env:TEMP\$EXEFileName"
 
-<<<<<<< HEAD
 # Download the EXE installer if a URL is provided
 if (-not [string]::IsNullOrEmpty($ExeUrl)) {
     Write-Host "Downloading Guardicore Agent EXE from $ExeUrl..."
-=======
 # Download the MSI installer if a URL is provided
 if ($MsiUrl -match '\S') {
     Write-Host "Downloading Guardicore Agent MSI from $MsiUrl..."
->>>>>>> fd14abdfd9d758f44320b2c10d1b560b9e486fa3
     try {
         Invoke-WebRequest -Uri $ExeUrl -OutFile $downloadPath -UseBasicParsing
         Write-Host "Download complete."
@@ -35,6 +31,7 @@ if ($MsiUrl -match '\S') {
         Write-Error "EXE file not found at $downloadPath and no download URL provided. Exiting."
         exit 1
     }
+}
 }
 
 # Construct the installation command

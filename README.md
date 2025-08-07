@@ -1,6 +1,6 @@
-# Terraform: Azure Windows VM with Cloudbase-Init
+# Terraform: Azure Windows VM with Guardicore Agent.
 
-This project provisions a Windows Virtual Machine in Azure using Terraform, and configures it to run a PowerShell script at first boot via **Cloudbase-Init**.
+This project provisions a Windows Virtual Machine in Azure using Terraform, and configures it to Install **Guardicore** Agent.
 
 ---
 
@@ -9,17 +9,14 @@ This project provisions a Windows Virtual Machine in Azure using Terraform, and 
 ```
 
 .
-├── main.tf                         # Terraform configuration
-├── variables.tf                    # Input variables
-├── terraform.tfvars                # Sensitive values (ignored by git)
-├── README.md                       # Readme File
-├── .gitignore                      # Git ignore rules
-└── config/                         # Configuration Files
-    ├── install-cloudbase-init.ps1  # PowerShell script to download and install CloudBase-Init and other required files
-    ├── cloudbase-init.conf         # Cloudbase-Init configuration for FirstLogon
-    ├── init.py                     # Modified init.py to bypass Meta Service checks
-    ├── cloudinit.cmd               # Windows command script to run required command and other scripts
-    └── cloudinit.ps1               # PowerShell test script to run by cloudinit.cmd 
+├── main.tf                             # Terraform configuration
+├── variables.tf                        # Input variables
+├── terraform.tfvars                    # Sensitive values (ignored by git)
+├── README.md                           # Readme File
+├── .gitignore                          # Git ignore rules
+├── guardicore_windows_installer.exe    # Guardicore Installer
+└── install_guardicore_agent.ps1        # Guardicore Insaller Script
+
 
 ````
 
@@ -28,7 +25,7 @@ This project provisions a Windows Virtual Machine in Azure using Terraform, and 
 ## 🚀 Features
 
 - Provision Windows Server 2022 VM on Azure
-- Download and Install Cloudbase-Init on VM
+- Download and Install Guardicore on VM
 - Install and execute a Windows command script at first boot using Cloudbase-Init
 - Secure configuration via `terraform.tfvars`
 - Storage account, virtual network, subnet, NIC, NSG, Public IP auto-created
@@ -43,6 +40,10 @@ Update `terraform.tfvars` with your Azure subscription ID and desired settings:
 
 ```hcl
 subscription_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+guardicore_token = "XXXXXXXXXXXXXXXXXXXX"
+guardicore_idp_hostname = "xxxx.xxx.xxx.com:443"
+guardicore_exe_url = "https://raw.githubusercontent.com/aadil268/guardicore-/main/guardicore_windows_installer.exe"
+guardicore_script_url = "https://raw.githubusercontent.com/aadil268/guardicore-/main/install_guardicore_agent.ps1"
 ````
 
 ### 2. Initialize Terraform
