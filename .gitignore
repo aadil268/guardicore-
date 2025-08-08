@@ -35,3 +35,4 @@ Thumbs.db
 *.tmp
 .terraform.tfstate.lock.info
 Untitled1.ps1
+create_blob_storage.ps1
